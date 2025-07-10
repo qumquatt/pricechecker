@@ -3,118 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEON CS2 Skin Tracker</title>
+    <title>CS2 Skin Tracker</title>
     <style>
         :root {
-            --bg-color: #000000;
-            --card-color: #1a1a1a;
-            --neon-pink: #ff00ff;
-            --neon-pink-glow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-            --text-color: #e0e0e0;
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #4CAF50;
+            --accent-hover: #3e8e41;
             --border-color: #333;
-            --profit-color: #00ff00;
-            --profit-glow: 0 0 10px #00ff00;
-            --consumer-grade: #b0c3d9;
-            --industrial-grade: #5e98d9;
-            --mil-spec: #4b69ff;
-            --restricted: #8847ff;
-            --classified: #d32ce6;
-            --covert: #eb4b4b;
-            --rare: #e4ae39;
+            --profit-color: #81C784;
+            --loss-color: #E57373;
         }
 
         body {
-            font-family: 'Rajdhani', 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
             margin: 0;
             padding: 20px;
             line-height: 1.6;
         }
 
-        @font-face {
-            font-family: 'Rajdhani';
-            src: url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;700&display=swap');
-        }
-
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         header {
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 1px solid var(--neon-pink);
+            border-bottom: 1px solid var(--border-color);
         }
 
         h1 {
-            color: var(--neon-pink);
-            text-shadow: var(--neon-pink-glow);
+            color: var(--accent-color);
             margin-bottom: 10px;
-            font-size: 2.5rem;
         }
 
         .tracker-form {
-            background-color: var(--card-color);
-            padding: 25px;
+            background-color: var(--bg-card);
+            padding: 20px;
             border-radius: 8px;
-            border: 1px solid var(--neon-pink);
-            box-shadow: var(--neon-pink-glow);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
         }
 
         input, button {
-            background-color: #111;
-            color: white;
-            border: 1px solid var(--neon-pink);
-            padding: 12px;
-            margin: 8px 0;
             width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
             font-size: 16px;
+            background-color: #2d2d2d;
+            color: var(--text-primary);
         }
 
         button {
-            background: linear-gradient(45deg, #ff00ff, #9d00ff);
+            background-color: var(--accent-color);
             color: white;
-            font-weight: bold;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
+            transition: background-color 0.2s;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 0, 255, 0.4);
+            background-color: var(--accent-hover);
         }
 
         .skin-card {
-            background-color: var(--card-color);
+            background-color: var(--bg-card);
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .skin-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--neon-pink-glow);
+            padding: 15px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
         }
 
         .skin-image {
-            width: 100%;
-            height: 180px;
-            background-color: #111;
+            width: 150px;
+            height: 110px;
+            background-color: #2d2d2d;
+            border-radius: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 15px;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .skin-image img {
@@ -123,100 +111,173 @@
             object-fit: contain;
         }
 
-        .delete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ff0000;
-            color: white;
-            border: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
+        .skin-info {
+            flex-grow: 1;
+        }
+
+        .skin-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--accent-color);
         }
 
         .skin-stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
+            font-size: 14px;
         }
 
         .stat-item {
-            background-color: #111;
-            padding: 10px;
-            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .rarity-consumer {
-            color: var(--consumer-grade);
-        }
-        .rarity-industrial {
-            color: var(--industrial-grade);
-        }
-        .rarity-milspec {
-            color: var(--mil-spec);
-        }
-        .rarity-restricted {
-            color: var(--restricted);
-        }
-        .rarity-classified {
-            color: var(--classified);
-        }
-        .rarity-covert {
-            color: var(--covert);
-        }
-        .rarity-rare {
-            color: var(--rare);
+        .stat-label {
+            color: var(--text-secondary);
         }
 
         .profit-positive {
             color: var(--profit-color);
-            text-shadow: var(--profit-glow);
         }
 
         .profit-negative {
-            color: #ff0000;
+            color: var(--loss-color);
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        .delete-btn:hover {
+            color: var(--loss-color);
+        }
+
+        #suggestions {
+            position: absolute;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            max-height: 200px;
+            overflow-y: auto;
+            width: calc(100% - 22px);
+            z-index: 100;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #2d2d2d;
+        }
+
+        .autocomplete-wrapper {
+            position: relative;
+        }
+
+        .loading {
+            color: var(--text-secondary);
+            font-style: italic;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>NEON CS2 SKIN TRACKER</h1>
+            <h1>CS2 Skin Tracker</h1>
             <p>Track your CS2 skin investments with real-time prices</p>
         </header>
 
         <div class="tracker-form">
-            <input type="text" id="skinName" placeholder="Skin name (e.g. AWP | Asiimov)" required>
-            <input type="number" id="buyPrice" placeholder="Purchase price ($)" required>
-            <button onclick="trackSkin()">ADD SKIN</button>
+            <div class="form-group autocomplete-wrapper">
+                <label for="skinName">Skin Name</label>
+                <input type="text" id="skinName" placeholder="Start typing skin name...">
+                <div id="suggestions"></div>
+            </div>
+            <div class="form-group">
+                <label for="buyPrice">Purchase Price ($)</label>
+                <input type="number" id="buyPrice" placeholder="Enter purchase price">
+            </div>
+            <button onclick="trackSkin()">Add Skin</button>
         </div>
 
         <div id="results"></div>
     </div>
 
     <script>
-        // Rarity colors mapping
-        const rarityColors = {
-            'Consumer Grade': 'rarity-consumer',
-            'Industrial Grade': 'rarity-industrial',
-            'Mil-Spec Grade': 'rarity-milspec',
-            'Restricted': 'rarity-restricted',
-            'Classified': 'rarity-classified',
-            'Covert': 'rarity-covert',
-            'Rare': 'rarity-rare'
-        };
+        // Popular skins for autocomplete
+        const popularSkins = [
+            "AWP | Asiimov (Field-Tested)",
+            "AK-47 | Redline (Field-Tested)",
+            "M4A4 | Howl (Factory New)",
+            "Karambit | Fade (Factory New)",
+            "AWP | Dragon Lore (Factory New)",
+            "Desert Eagle | Blaze (Factory New)",
+            "Glock-18 | Fade (Factory New)",
+            "USP-S | Neo-Noir (Factory New)",
+            "AWP | Graphite (Factory New)",
+            "M4A1-S | Cyrex (Factory New)"
+        ];
 
+        // DOM elements
+        const skinNameInput = document.getElementById('skinName');
+        const suggestionsDiv = document.getElementById('suggestions');
+        const buyPriceInput = document.getElementById('buyPrice');
+        const resultsDiv = document.getElementById('results');
+
+        // Tracked skins from localStorage
         let trackedSkins = JSON.parse(localStorage.getItem('trackedSkins')) || [];
+        
+        // Display existing skins
         displayResults();
 
-        async function trackSkin() {
-            const skinName = document.getElementById('skinName').value.trim();
-            const buyPrice = parseFloat(document.getElementById('buyPrice').value);
+        // Autocomplete functionality
+        skinNameInput.addEventListener('input', function() {
+            const input = this.value.toLowerCase();
+            if (input.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
 
-            if (!skinName || isNaN(buyPrice)) {
+            const filtered = popularSkins.filter(skin => 
+                skin.toLowerCase().includes(input)
+            );
+
+            if (filtered.length > 0) {
+                suggestionsDiv.innerHTML = filtered.map(skin => 
+                    `<div class="suggestion-item" onclick="selectSuggestion('${skin}')">${skin}</div>`
+                ).join('');
+                suggestionsDiv.style.display = 'block';
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        function selectSuggestion(skinName) {
+            skinNameInput.value = skinName;
+            suggestionsDiv.style.display = 'none';
+            buyPriceInput.focus();
+        }
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target !== skinNameInput) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        // Main function to track a skin
+        async function trackSkin() {
+            const skinName = skinNameInput.value.trim();
+            const buyPrice = parseFloat(buyPriceInput.value);
+
+            if (!skinName || isNaN(buyPrice) || buyPrice <= 0) {
                 alert("Please enter valid skin name and price!");
                 return;
             }
@@ -224,7 +285,7 @@
             // Check if skin already exists
             const existingIndex = trackedSkins.findIndex(s => s.name === skinName);
             if (existingIndex >= 0) {
-                if (confirm("Skin already tracked. Update purchase price?")) {
+                if (confirm("This skin is already tracked. Update purchase price?")) {
                     trackedSkins[existingIndex].buyPrice = buyPrice;
                     localStorage.setItem('trackedSkins', JSON.stringify(trackedSkins));
                     displayResults();
@@ -270,8 +331,7 @@
                         currentPrice: currentPrice,
                         profit: netProfit,
                         roi: roi,
-                        image: listing.item.icon_url,
-                        rarity: listing.item.rarity
+                        image: listing.item.icon_url
                     };
 
                     trackedSkins[trackedSkins.length - 1] = updatedSkin;
@@ -286,10 +346,13 @@
                 localStorage.setItem('trackedSkins', JSON.stringify(trackedSkins));
                 displayResults();
             }
+
+            // Clear inputs
+            skinNameInput.value = '';
+            buyPriceInput.value = '';
         }
 
         function displayResults() {
-            const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
 
             if (trackedSkins.length === 0) {
@@ -301,49 +364,56 @@
             trackedSkins.forEach((skin, index) => {
                 totalProfit += skin.profit || 0;
 
-                const rarityClass = skin.rarity ? rarityColors[skin.rarity] || '' : '';
                 const profitClass = skin.profit >= 0 ? 'profit-positive' : 'profit-negative';
+                const profitSign = skin.profit >= 0 ? '+' : '';
 
                 resultsDiv.innerHTML += `
                     <div class="skin-card">
-                        <button class="delete-btn" onclick="deleteSkin(${index})">X</button>
-                        ${skin.image ? `
-                            <div class="skin-image">
-                                <img src="${skin.image}" alt="${skin.name}">
-                            </div>
-                        ` : ''}
-                        <h3 class="${rarityClass}">${skin.name}</h3>
-                        <div class="skin-stats">
-                            <div class="stat-item">
-                                <strong>Paid:</strong> $${skin.buyPrice.toFixed(2)}
-                            </div>
-                            <div class="stat-item">
-                                <strong>Current:</strong> $${skin.currentPrice ? skin.currentPrice.toFixed(2) : '...'}
-                            </div>
-                            <div class="stat-item">
-                                <strong>Profit:</strong> 
-                                <span class="${profitClass}">
-                                    ${skin.profit ? (skin.profit >= 0 ? '+' : '') + skin.profit.toFixed(2) : '...'}
-                                </span>
-                            </div>
-                            <div class="stat-item">
-                                <strong>ROI:</strong> 
-                                <span class="${profitClass}">
-                                    ${skin.roi ? (skin.roi >= 0 ? '+' : '') + skin.roi.toFixed(2) + '%' : '...'}
-                                </span>
+                        <div class="skin-image">
+                            ${skin.image ? `<img src="${skin.image}" alt="${skin.name}">` : 'No image'}
+                        </div>
+                        <div class="skin-info">
+                            <div class="skin-name">${skin.name}</div>
+                            <div class="skin-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Paid:</span>
+                                    <span>$${skin.buyPrice.toFixed(2)}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Current:</span>
+                                    <span>${skin.currentPrice ? '$$' + skin.currentPrice.toFixed(2) : '...'}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Profit:</span>
+                                    <span class="${profitClass}">
+                                        ${skin.profit ? profitSign + skin.profit.toFixed(2) : '...'}
+                                    </span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">ROI:</span>
+                                    <span class="${profitClass}">
+                                        ${skin.roi ? profitSign + skin.roi.toFixed(2) + '%' : '...'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
+                        <button class="delete-btn" onclick="deleteSkin(${index})">×</button>
                     </div>
                 `;
             });
 
             // Add total profit display
+            const totalProfitClass = totalProfit >= 0 ? 'profit-positive' : 'profit-negative';
+            const totalProfitSign = totalProfit >= 0 ? '+' : '';
+            
             resultsDiv.insertAdjacentHTML('afterbegin', `
-                <div class="skin-card" style="text-align: center;">
-                    <h3>TOTAL PROFIT</h3>
-                    <h2 class="${totalProfit >= 0 ? 'profit-positive' : 'profit-negative'}" style="font-size: 2rem;">
-                        ${totalProfit >= 0 ? '+' : ''}$${totalProfit.toFixed(2)}
-                    </h2>
+                <div class="skin-card" style="justify-content: center; text-align: center;">
+                    <div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">TOTAL PROFIT</div>
+                        <div style="font-size: 1.5rem;" class="${totalProfitClass}">
+                            ${totalProfitSign}$${Math.abs(totalProfit).toFixed(2)}
+                        </div>
+                    </div>
                 </div>
             `);
         }
