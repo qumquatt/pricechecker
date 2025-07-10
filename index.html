@@ -41,13 +41,15 @@
         h1 {
             color: var(--accent-color);
             margin-bottom: 10px;
+            font-size: 28px;
         }
 
         .tracker-form {
             background-color: var(--bg-card);
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 6px;
             margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .form-group {
@@ -58,9 +60,11 @@
             display: block;
             margin-bottom: 5px;
             font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
         }
 
-        input, button {
+        input {
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
@@ -68,13 +72,17 @@
             font-size: 16px;
             background-color: #2d2d2d;
             color: var(--text-primary);
+            box-sizing: border-box;
         }
 
         button {
+            width: 100%;
+            padding: 12px;
             background-color: var(--accent-color);
             color: white;
             border: none;
-            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
@@ -86,11 +94,12 @@
 
         .skin-card {
             background-color: var(--bg-card);
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 15px;
             margin-bottom: 15px;
             display: flex;
             gap: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .skin-image {
@@ -117,8 +126,9 @@
 
         .skin-name {
             font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--accent-color);
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            font-size: 16px;
         }
 
         .skin-stats {
@@ -151,6 +161,8 @@
             color: var(--text-secondary);
             cursor: pointer;
             align-self: flex-start;
+            padding: 0;
+            font-size: 18px;
         }
 
         .delete-btn:hover {
@@ -166,11 +178,13 @@
             width: calc(100% - 22px);
             z-index: 100;
             display: none;
+            border-radius: 0 0 4px 4px;
         }
 
         .suggestion-item {
             padding: 8px 10px;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .suggestion-item:hover {
@@ -185,13 +199,24 @@
             color: var(--text-secondary);
             font-style: italic;
         }
+
+        .total-profit {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .total-amount {
+            font-weight: bold;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>CS2 Skin Tracker</h1>
-            <p>Track your CS2 skin investments with real-time prices</p>
+            <p>Track your skin investments with real-time market prices</p>
         </header>
 
         <div class="tracker-form">
@@ -303,23 +328,12 @@
             localStorage.setItem('trackedSkins', JSON.stringify(trackedSkins));
             displayResults();
 
-            // Fetch skin data from CSGOFloat API
+            // Fetch skin data
             try {
-                const response = await fetch(`https://api.csgofloat.com/v1/listings`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        market_hash_name: skinName
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data && data.listings && data.listings.length > 0) {
-                    const listing = data.listings[0];
-                    const currentPrice = listing.price;
+                const skinData = await fetchSkinData(skinName);
+                
+                if (skinData) {
+                    const currentPrice = skinData.price;
                     const steamFee = 0.15;
                     const netProfit = (currentPrice * (1 - steamFee)) - buyPrice;
                     const roi = (netProfit / buyPrice) * 100;
@@ -331,17 +345,15 @@
                         currentPrice: currentPrice,
                         profit: netProfit,
                         roi: roi,
-                        image: listing.item.icon_url
+                        image: skinData.image
                     };
 
                     trackedSkins[trackedSkins.length - 1] = updatedSkin;
                     localStorage.setItem('trackedSkins', JSON.stringify(trackedSkins));
                     displayResults();
-                } else {
-                    throw new Error("Skin not found");
                 }
             } catch (error) {
-                alert("Error fetching skin data: " + error.message);
+                alert("Error: " + error.message);
                 trackedSkins.pop();
                 localStorage.setItem('trackedSkins', JSON.stringify(trackedSkins));
                 displayResults();
@@ -352,17 +364,78 @@
             buyPriceInput.value = '';
         }
 
+        // Improved API fetching with fallbacks
+        async function fetchSkinData(skinName) {
+            try {
+                // Try Steam API first
+                const steamResponse = await fetch(
+                    `https://api.allorigins.win/get?url=${encodeURIComponent(
+                        `https://steamcommunity.com/market/priceoverview/?appid=730&currency=1&market_hash_name=${skinName}`
+                    )}`
+                );
+                
+                const steamData = await steamResponse.json();
+                const priceData = JSON.parse(steamData.contents);
+                
+                if (priceData.success) {
+                    const priceText = priceData.lowest_price || priceData.median_price;
+                    const currentPrice = parseFloat(priceText.replace('$', '').replace(',', ''));
+                    
+                    return {
+                        price: currentPrice,
+                        image: `https://steamcommunity-a.akamaihd.net/economy/image/${getImageHash(skinName)}/360fx360f`
+                    };
+                }
+            } catch (e) {
+                console.log("Steam API failed, trying alternative");
+            }
+
+            // Fallback to CSGOBackpack if Steam fails
+            try {
+                const response = await fetch(
+                    `https://api.allorigins.win/get?url=${encodeURIComponent(
+                        `https://csgobackpack.net/api/GetItemPrice/?currency=USD&id=${skinName}`
+                    )}`
+                );
+                
+                const data = await response.json();
+                const itemData = JSON.parse(data.contents);
+                
+                if (itemData.success) {
+                    return {
+                        price: itemData.price,
+                        image: itemData.icon ? `https://steamcommunity-a.akamaihd.net/economy/image/${itemData.icon}/360fx360f` : null
+                    };
+                }
+            } catch (e) {
+                console.log("CSGOBackpack API failed");
+            }
+
+            throw new Error("Couldn't fetch skin data from any source");
+        }
+
+        // Helper function to get image hash (simplified)
+        function getImageHash(skinName) {
+            // In a real app, you'd want to map skin names to their image hashes
+            return 'IzMF03bi9WpSBq-S-ekoE33L-iLqGFHVaU25ZzQNQcXdB2ozio1RrlIWFK3UfvMYB8UsvjiMXojflsZalyxSh31CIyHz2GZ-KuFpPsrTzBGp8Lf0YQr9VPT1JYnTUWnAQ7gPGVK_vJ7VnD-Jp0R1h0ZvQ1O1e1XZ8XH3JXcV9Q';
+        }
+
         function displayResults() {
             resultsDiv.innerHTML = '';
 
             if (trackedSkins.length === 0) {
-                resultsDiv.innerHTML = '<p>No skins being tracked. Add your first skin above!</p>';
+                resultsDiv.innerHTML = '<div class="skin-card" style="text-align: center;">No skins being tracked. Add your first skin above!</div>';
                 return;
             }
 
             let totalProfit = 0;
+            let validSkins = 0;
+            
             trackedSkins.forEach((skin, index) => {
-                totalProfit += skin.profit || 0;
+                if (!skin.loading) {
+                    totalProfit += skin.profit || 0;
+                    validSkins++;
+                }
 
                 const profitClass = skin.profit >= 0 ? 'profit-positive' : 'profit-negative';
                 const profitSign = skin.profit >= 0 ? '+' : '';
@@ -370,7 +443,7 @@
                 resultsDiv.innerHTML += `
                     <div class="skin-card">
                         <div class="skin-image">
-                            ${skin.image ? `<img src="${skin.image}" alt="${skin.name}">` : 'No image'}
+                            ${skin.image ? `<img src="${skin.image}" alt="${skin.name}" onerror="this.style.display='none'">` : 'No image'}
                         </div>
                         <div class="skin-info">
                             <div class="skin-name">${skin.name}</div>
@@ -386,18 +459,18 @@
                                 <div class="stat-item">
                                     <span class="stat-label">Profit:</span>
                                     <span class="${profitClass}">
-                                        ${skin.profit ? profitSign + skin.profit.toFixed(2) : '...'}
+                                        ${skin.profit !== undefined ? profitSign + skin.profit.toFixed(2) : '...'}
                                     </span>
                                 </div>
                                 <div class="stat-item">
                                     <span class="stat-label">ROI:</span>
                                     <span class="${profitClass}">
-                                        ${skin.roi ? profitSign + skin.roi.toFixed(2) + '%' : '...'}
+                                        ${skin.roi !== undefined ? profitSign + skin.roi.toFixed(2) + '%' : '...'}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <button class="delete-btn" onclick="deleteSkin(${index})">×</button>
+                        <button class="delete-btn" onclick="deleteSkin(${index})" title="Delete">×</button>
                     </div>
                 `;
             });
@@ -409,9 +482,12 @@
             resultsDiv.insertAdjacentHTML('afterbegin', `
                 <div class="skin-card" style="justify-content: center; text-align: center;">
                     <div>
-                        <div style="font-size: 0.9rem; color: var(--text-secondary);">TOTAL PROFIT</div>
-                        <div style="font-size: 1.5rem;" class="${totalProfitClass}">
+                        <div style="font-size: 14px; color: var(--text-secondary);">TOTAL PROFIT</div>
+                        <div class="total-amount ${totalProfitClass}">
                             ${totalProfitSign}$${Math.abs(totalProfit).toFixed(2)}
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+                            ${validSkins} ${validSkins === 1 ? 'skin' : 'skins'} tracked
                         </div>
                     </div>
                 </div>
